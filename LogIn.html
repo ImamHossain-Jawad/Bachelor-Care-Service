@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bachelor Care Service</title>
+  <style>
+    *{box-sizing:border-box;font-family:Poppins,Arial,Helvetica,sans-serif}
+    body{margin:0;height:100vh;display:flex;justify-content:center;align-items:center;background:#000;color:#fff;overflow:hidden}
+    .container{display:flex;width:90%;max-width:1000px;height:600px;border-radius:15px;overflow:hidden;background:#111;box-shadow:0 0 25px rgba(255,255,255,0.07)}
+    .left{flex:1;background:linear-gradient(135deg,#181414cb,#000);display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:60px}
+    .left h1{font-size:50px;margin:0 0 10px;color:#fff}
+    .left p{color:#bbb;max-width:350px}
+    .right{flex:1;display:flex;justify-content:center;align-items:center;background:#ce6824e1;padding:40px}
+    form{width:100%;max-width:360px;background:#000;padding:30px;border-radius:10px;box-shadow:0 0 10px rgba(255,252,252,0.18)}
+    h2{text-align:center;margin-bottom:20px;color:#fff}
+    .input-group{margin-bottom:12px}
+    label{display:block;margin-bottom:6px;color:#ccc;font-weight:500;font-size:14px}
+    input[type=text],input[type=email],input[type=tel],input[type=password],input[type=number]{width:100%;padding:10px;border-radius:8px;border:none;outline:none;background:#c2acac;color:#000;font-size:14px}
+    input:focus{border:1px solid #ff6600}
+    .remember{display:flex;align-items:center;justify-content:space-between;margin:10px 0;color:#aaa;font-size:13px}
+    .btn{width:100%;background:#ff6600;color:#fff;border:none;padding:12px;border-radius:8px;font-size:16px;cursor:pointer}
+    .btn:hover{background:#e65c00}
+    .bottom-text{text-align:center;margin-top:10px;color:#aaa;font-size:13px}
+    .bottom-text a{color:#ff6600;text-decoration:none}
+    #signupForm{display:none}
+    @media(max-width:900px){.container{flex-direction:column;height:auto}.left,.right{width:100%;padding:40px 25px;text-align:center}.left{align-items:center}.left h1{font-size:36px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left">
+      <h1>Bachelor Care Service</h1>
+      <p>Makes life easier — cleaning, meals.</p>
+    </div>
+
+    <div class="right">
+      <form id="loginForm" autocomplete="off">
+        <h2>Log In</h2>
+        <div class="input-group">
+          <label for="loginEmail">Email</label>
+          <input id="loginEmail" type="email" required placeholder="example@gmail.com">
+        </div>
+        <div class="input-group">
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" type="password" required placeholder="password">
+        </div>
+        <div class="remember">
+          <label><input id="rememberMe" type="checkbox"> Remember Me</label>
+          <a href="#" onclick="alert('Password reset not implemented in demo')">Forgot password?</a>
+        </div>
+        <button class="btn" type="submit">Sign in</button>
+        <div class="bottom-text">Don't have an account? <a href="#" id="showSignup">Sign Up</a></div>
+      </form>
+
+      
+      <form id="signupForm" autocomplete="off">
+        <h2>Sign Up</h2>
+        <div class="input-group"><label for="signupName">Full Name</label><input id="signupName" type="text" required></div>
+        <div class="input-group"><label for="signupPhone">Phone</label><input id="signupPhone" type="tel" required></div>
+        <div class="input-group"><label for="signupAddress">Address</label><input id="signupAddress" type="text" required></div>
+        <div class="input-group"><label for="signupEmail">Email</label><input id="signupEmail" type="email" required></div>
+        <div class="input-group"><label for="signupPassword">Password</label><input id="signupPassword" type="password" required></div>
+        <button class="btn" type="submit">Create Account</button>
+        <div class="bottom-text">Already have an account? <a href="#" id="showLogin">Login</a></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const showSignup = document.getElementById('showSignup');
+    const showLogin = document.getElementById('showLogin');
+
+   
+    showSignup.addEventListener('click', (e) => { e.preventDefault(); loginForm.style.display='none'; signupForm.style.display='block'; });
+    showLogin.addEventListener('click', (e) => { e.preventDefault(); signupForm.style.display='none'; loginForm.style.display='block'; });
+
+    
+    function normalizeEmail(email){ return (email||'').trim().toLowerCase(); }
+
+    
+    signupForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      const name = document.getElementById('signupName').value.trim();
+      const phone = document.getElementById('signupPhone').value.trim();
+      const address = document.getElementById('signupAddress').value.trim();
+      const email = normalizeEmail(document.getElementById('signupEmail').value);
+      const password = document.getElementById('signupPassword').value;
+      
+
+      if (!name || !email || !password) { alert('Please fill name, email and password.'); return; }
+      if (password.length < 4) { alert('Password should be at least 4 characters (demo).'); return; }
+      
+
+      const users = JSON.parse(localStorage.getItem('bachelor_users') || '[]');
+      const exists = users.find(u => u.email === email);
+      if (exists) {
+        alert('Account already exists. Please log in.');
+        signupForm.reset();
+        signupForm.style.display='none'; loginForm.style.display='block';
+        return;
+      }
+
+      users.push({ name, phone, address, email, password });
+      localStorage.setItem('bachelor_users', JSON.stringify(users));
+      localStorage.setItem('bachelor_current', email);
+      alert('Account created — redirecting to Home');
+      window.location.href = 'home.html';
+    });
+
+    
+    loginForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      const email = normalizeEmail(document.getElementById('loginEmail').value);
+      const password = document.getElementById('loginPassword').value;
+
+      const users = JSON.parse(localStorage.getItem('bachelor_users') || '[]');
+      if (users.length === 0) {
+        alert('No account found. Please sign up first.');
+        loginForm.style.display='none'; signupForm.style.display='block';
+        return;
+      }
+
+      const user = users.find(u => u.email === email);
+      if (!user) {
+        alert('No account found with that email. Please sign up.');
+        loginForm.style.display='none'; signupForm.style.display='block';
+        return;
+      }
+
+      if (user.password !== password) {
+        alert('Wrong password. Try again.');
+        return;
+      }
+
+      localStorage.setItem('bachelor_current', email);
+      if (document.getElementById('rememberMe').checked) {
+      }
+      window.location.href = 'home.html';
+    });
+  </script>
+</body>
+</html>

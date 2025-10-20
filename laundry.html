@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🧺 Laundry - Bachelor Care Service</title>
+<style>
+body{margin:0;background:#000;color:#fff;font-family:Poppins,Arial,sans-serif;display:flex;flex-direction:column;min-height:100vh;}
+header{background:#111;padding:15px 25px;display:flex;justify-content:space-between;align-items:center;}
+header h1{color:#ff6600;margin:0;font-size:26px;}
+.nav-btns button{background:#ff6600;color:#fff;border:none;padding:10px 18px;border-radius:8px;margin-left:8px;cursor:pointer;transition:0.3s;}
+.nav-btns button:hover{background:#ff8533;transform:scale(1.05);}
+main{flex:1;width:95%;max-width:1100px;margin:20px auto;text-align:center;}
+h2{color:#ff6600;margin-bottom:20px;}
+.laundry-table{width:100%;border-collapse:collapse;margin-top:20px;background:#111;box-shadow:0 0 10px rgba(255,255,255,0.05);}
+.laundry-table th,.laundry-table td{border:1px solid #222;padding:10px;text-align:center;vertical-align:middle;}
+.laundry-table th{background:#ff6600;color:#fff;}
+.qty-input{width:60px;text-align:center;border-radius:6px;border:none;background:#222;color:#fff;padding:6px;font-size:16px;}
+.confirm-btn{background:#ff6600;color:#fff;padding:6px 10px;border:none;border-radius:6px;cursor:pointer;transition:0.3s;}
+.confirm-btn:hover{background:#ff6600;}
+.bottom-buttons{display:flex;justify-content:center;gap:15px;margin-top:20px;flex-wrap:wrap;}
+.bottom-buttons button{padding:12px 25px;border:none;border-radius:10px;font-weight:600;font-size:16px;cursor:pointer;transition:0.3s;}
+.reset-btn{background:#444;color:#fff;}
+.reset-btn:hover{background:#666;transform:scale(1.05);}
+.pay-btn{background:#ff3300;color:#fff;}
+.pay-btn:hover{background:#ff5522;transform:scale(1.05);}
+.total-box{background:#111;padding:15px;border-radius:12px;color:#ff6600;font-size:20px;font-weight:600;width:fit-content;margin:20px auto;}
+footer{background:#0a0a0a;padding:14px;text-align:center;color:#777;border-top:1px solid #222;margin-top:auto;}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🧺 Laundry Service</h1>
+<div class="nav-btns">
+<button onclick="goHome()">🏠 Home</button>
+<button onclick="goMeal()">🍽️ Meal Plan</button>
+<button onclick="logout()">Logout</button>
+</div>
+</header>
+
+<main>
+<h2>Available Cloth Types</h2>
+<table class="laundry-table">
+<thead>
+<tr><th>Cloth Type</th><th>Price (৳)</th><th>Quantity</th><th>Subtotal (৳)</th><th>Confirm</th></tr>
+</thead>
+<tbody id="laundryList"></tbody>
+</table>
+
+<div class="total-box" id="totalBox">Total: ৳0</div>
+
+<div class="bottom-buttons">
+<button class="reset-btn" onclick="resetAll()">Reset</button>
+<button class="pay-btn" onclick="payNow()">Pay Now</button>
+</div>
+
+</main>
+
+<footer>© 2025 Bachelor Care Service</footer>
+
+<script>
+const current = localStorage.getItem('bachelor_current') || 'test@example.com';
+const budgetKey = 'bachelor_total_' + current;
+let budgetTotal = parseFloat(localStorage.getItem(budgetKey)) || 1000;
+
+const cloths = {
+  "Shirt": 15,
+  "Pant": 20,
+  "T-shirt": 12,
+  "Jeans": 25,
+  "Bed Sheet": 30,
+  "Pillow Cover": 8,
+  "Towel": 10,
+  "Kurta": 18,
+  "Panjabi": 22,
+  "Blanket": 40,
+  "Jacket": 35
+};
+
+let laundryData = {};
+for(let item in cloths) laundryData[item] = 0;
+
+function renderLaundry(){
+  const listEl = document.getElementById('laundryList');
+  listEl.innerHTML = '';
+  for(let item in cloths){
+    const price = cloths[item];
+    const qty = laundryData[item];
+    const subtotal = price * qty;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${item}</td>
+      <td>৳${price}</td>
+      <td><input type="number" min="0" value="${qty}" class="qty-input" id="qty-${item}"></td>
+      <td id="sub-${item}">৳${subtotal}</td>
+      <td><button class="confirm-btn" onclick="confirmQty('${item}')">Confirm</button></td>
+    `;
+    listEl.appendChild(tr);
+  }
+  updateTotal();
+}
+
+function confirmQty(item){
+  const val = parseInt(document.getElementById(`qty-${item}`).value) || 0;
+  laundryData[item] = val;
+  document.getElementById(`sub-${item}`).textContent = '৳' + (val * cloths[item]);
+  updateTotal();
+}
+
+function updateTotal(){
+  const total = Object.keys(cloths).reduce((sum, i) => sum + (laundryData[i] * cloths[i]), 0);
+  document.getElementById('totalBox').textContent = 'Total: ৳' + total;
+}
+
+function resetAll(){
+  if(confirm('Reset all quantities?')){
+    for(let item in laundryData) laundryData[item] = 0;
+    renderLaundry();
+  }
+}
+
+function payNow(){
+  const totalCost = Object.keys(cloths).reduce((sum, i) => sum + (laundryData[i] * cloths[i]), 0);
+  if(totalCost <= 0){
+    alert('No quantity selected!');
+    return;
+  }
+  if(totalCost > budgetTotal){
+    alert('Insufficient balance!');
+    return;
+  }
+
+  budgetTotal -= totalCost;
+  localStorage.setItem(budgetKey, budgetTotal);
+
+  alert(`✅ Payment successful! ৳${totalCost} deducted.\n🧺 Your laundry will be picked up within 1 hour.\n🚚 Delivery expected within 2–3 days.`);
+
+  for(let item in laundryData) laundryData[item] = 0;
+  renderLaundry();
+}
+
+// Navigation
+function goHome(){ window.location.href='home.html'; }
+function goMeal(){ window.location.href='mealplan.html'; }
+function logout(){ localStorage.removeItem('bachelor_current'); alert('Logged out'); window.location.href='Login.html'; }
+
+renderLaundry();
+</script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Meal Plan - Bachelor Care Service</title>
+<style>
+body{margin:0;background:#000;color:#fff;font-family:Poppins,Arial,sans-serif;display:flex;flex-direction:column;min-height:100vh;}
+header{background:#111;padding:15px 25px;display:flex;justify-content:space-between;align-items:center;}
+header h1{color:#ff6600;margin:0;font-size:26px;}
+.nav-btns button{background:#ff6600;color:#fff;border:none;padding:10px 18px;border-radius:8px;margin-left:8px;cursor:pointer;transition:0.3s;}
+.nav-btns button:hover{background:#ff8533;transform:scale(1.05);}
+main{flex:1;width:95%;max-width:1100px;margin:20px auto;text-align:center;}
+h2{color:#ff6600;margin-bottom:20px;}
+.meal-buttons{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin-bottom:30px;}
+.meal-buttons button{
+  background:linear-gradient(135deg,#ff6600,#ff3300);
+  border:none;
+  color:#fff;
+  padding:15px 10px;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:600;
+  transition:0.3s;
+  cursor:default; /* no click pointer */
+  pointer-events:none; /* disables click completely */
+}
+.weekly-btn{background:#ff6600;color:#fff;padding:14px 30px;border-radius:12px;font-size:18px;font-weight:700;margin-bottom:20px;cursor:pointer;transition:0.3s;}
+.weekly-btn:hover{background:#ff8533;transform:scale(1.05);}
+.plan-table{width:100%;border-collapse:collapse;margin-top:20px;background:#111;box-shadow:0 0 10px rgba(255,255,255,0.05);}
+.plan-table th,.plan-table td{border:1px solid #222;padding:8px;text-align:center;vertical-align:top;}
+.plan-table th{background:#ff6600;color:#fff;}
+.options-container{margin-top:5px;display:flex;flex-wrap:wrap;gap:5px;justify-content:center;}
+.options-container button{background:#444;color:#fff;border:none;padding:4px 6px;border-radius:5px;font-size:12px;cursor:pointer;transition:0.2s;}
+.options-container button:hover{background:#ff6600;}
+.edit-btn{background:#ff8533;color:#fff;border:none;padding:3px 5px;margin:2px;border-radius:5px;font-size:12px;cursor:pointer;transition:0.2s;}
+.edit-btn:hover{background:#ffaa66;}
+.total-box{background:#111;padding:15px;border-radius:12px;color:#ff6600;font-size:20px;font-weight:600;width:fit-content;margin:20px auto;}
+.bottom-buttons{display:flex;justify-content:center;gap:15px;margin-top:20px;flex-wrap:wrap;}
+.bottom-buttons button{padding:12px 25px;border:none;border-radius:10px;font-weight:600;font-size:16px;cursor:pointer;transition:0.3s;}
+.reset-btn{background:#444;color:#fff;}
+.reset-btn:hover{background:#666;transform:scale(1.05);}
+.pay-btn{background:#ff3300;color:#fff;}
+.pay-btn:hover{background:#ff5522;transform:scale(1.05);}
+footer{background:#0a0a0a;padding:14px;text-align:center;color:#777;border-top:1px solid #222;margin-top:auto;}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🍽️ Meal Plan</h1>
+<div class="nav-btns">
+<button onclick="goHome()">🏠 Home</button>
+<button onclick="goLaundry()">🧺 Laundry</button>
+<button onclick="logout()">Logout</button>
+</div>
+</header>
+
+<main>
+<h2>🇧🇩 Bangla Meal Items</h2>
+<div class="meal-buttons" id="allMeals"></div>
+
+<button class="weekly-btn" onclick="renderWeeklyPlan()">🌟 Show/Edit Best Weekly Plan</button>
+
+<div id="planContainer"></div>
+
+<div class="total-box" id="totalBox">Total: ৳0</div>
+
+<div class="bottom-buttons">
+<button class="reset-btn" onclick="resetTotal()">Reset</button>
+<button class="pay-btn" onclick="payNow()">Pay Now</button>
+</div>
+</main>
+
+<footer>© 2025 Bachelor Care Service</footer>
+
+<script>
+
+const current = localStorage.getItem('bachelor_current') || 'test@example.com';
+const budgetKey = 'bachelor_total_' + current;
+let budgetTotal = parseFloat(localStorage.getItem(budgetKey)) || 1000;
+
+const mealKey = 'meal_total_' + current;
+let mealTotal = parseFloat(localStorage.getItem(mealKey)) || 0;
+
+const totalBox = document.getElementById('totalBox');
+const planContainer = document.getElementById('planContainer');
+
+const prices = {
+  'ভাত':30,'মাছ':50,'ডাল':30,'চিকেন':70,'গরুর মাংস':90,'সবজি':25,
+  'ডিম':20,'ডিম ভাজি':40,'আলু ভর্তা':20,'ইলিশ মাছ':150,'বিফ ভুনা':120,
+  'রুটি':20,'পাউরুটি':15,'খিচুড়ি':60,'পরোটা':25,'পোলাও':80,'মুরগি':70,'কলা':10
+};
+
+// display only (no click, no alert)
+const allMealsDiv = document.getElementById('allMeals');
+Object.keys(prices).forEach(meal=>{
+  const btn = document.createElement('button');
+  btn.textContent = `${meal} (৳${prices[meal]})`;
+  allMealsDiv.appendChild(btn);
+});
+
+let weeklyMeals = [
+  ['সোমবার',['রুটি','ডিম'],['ভাত','ডাল','সবজি'],['ভাত','মাছ','ডিম ভাজি']],
+  ['মঙ্গলবার',['পাউরুটি','কলা'],['ভাত','মুরগি','সবজি'],['ভাত','গরুর মাংস']],
+  ['বুধবার',['খিচুড়ি'],['ভাত','ডাল','সবজি'],['ভাত','চিকেন']],
+  ['বৃহস্পতিবার',['পরোটা','ডিম'],['ভাত','মাছ','সবজি'],['ভাত','বিফ ভুনা']],
+  ['শুক্রবার',['পোলাও','ডিম'],['ভাত','ইলিশ মাছ'],['ভাত','গরুর মাংস']],
+  ['শনিবার',['রুটি','সবজি'],['ভাত','ডাল','ডিম'],['ভাত','চিকেন']],
+  ['রবিবার',['খিচুড়ি'],['ভাত','মাছ','ডিম'],['ভাত','সবজি','আলু ভর্তা']]
+];
+
+function sumMealArray(arr){ return arr.reduce((a,item)=>a+(prices[item]||0),0); }
+function updateTotal(){ totalBox.textContent='Total: ৳'+mealTotal.toFixed(2); }
+
+function renderWeeklyPlan(){
+  let totalCost=0;
+  let table = `<table class='plan-table'><tr><th>দিন</th><th>সকাল</th><th>দুপুর</th><th>রাত</th><th>দিনের মোট</th></tr>`;
+  
+  weeklyMeals.forEach((day,dayIndex)=>{
+    const [dayName,b,l,d] = day;
+    const dayTotal = sumMealArray(b)+sumMealArray(l)+sumMealArray(d);
+    totalCost += dayTotal;
+
+    const renderCell = (mealArray,mealIndex)=>{
+      let html = mealArray.map(m=>`${m} (৳${prices[m]})`).join(', ');
+      html += `<div class="options-container" id="options-${dayIndex}-${mealIndex}"></div>`;
+      html += `<button class="edit-btn" onclick="showAddOptions(${dayIndex},${mealIndex})">+ Add</button>`;
+      html += `<button class="edit-btn" onclick="showRemoveOptions(${dayIndex},${mealIndex})">❌ Remove</button>`;
+      return html;
+    };
+
+    table += `<tr>
+      <td>${dayName}</td>
+      <td>${renderCell(b,1)}</td>
+      <td>${renderCell(l,2)}</td>
+      <td>${renderCell(d,3)}</td>
+      <td>৳${dayTotal}</td>
+    </tr>`;
+  });
+  table += `<tr><th colspan="4">মোট ৭ দিনের খরচ</th><th>৳${totalCost}</th></tr></table>`;
+  planContainer.innerHTML = table;
+
+  mealTotal = totalCost;
+  localStorage.setItem(mealKey,mealTotal);
+  updateTotal();
+}
+
+function showAddOptions(dayIndex,mealIndex){
+  const container = document.getElementById(`options-${dayIndex}-${mealIndex}`);
+  container.innerHTML='';
+  Object.keys(prices).forEach(meal=>{
+    const btn = document.createElement('button');
+    btn.textContent = `${meal} (৳${prices[meal]})`;
+    btn.onclick = ()=>{
+      weeklyMeals[dayIndex][mealIndex].push(meal);
+      renderWeeklyPlan();
+    };
+    container.appendChild(btn);
+  });
+}
+
+function showRemoveOptions(dayIndex,mealIndex){
+  const container = document.getElementById(`options-${dayIndex}-${mealIndex}`);
+  container.innerHTML='';
+  weeklyMeals[dayIndex][mealIndex].forEach((meal,i)=>{
+    const btn = document.createElement('button');
+    btn.textContent = `${meal} (৳${prices[meal]})`;
+    btn.onclick = ()=>{
+      weeklyMeals[dayIndex][mealIndex].splice(i,1);
+      renderWeeklyPlan();
+    };
+    container.appendChild(btn);
+  });
+}
+
+// bottom buttons
+function resetTotal(){ if(confirm('Reset total?')){ mealTotal=0; planContainer.innerHTML=''; updateTotal(); } }
+function payNow(){ if(mealTotal<=0){ alert('No meals added'); return; } if(budgetTotal<mealTotal){ alert('Insufficient balance!'); return; } budgetTotal-=mealTotal; localStorage.setItem(budgetKey,budgetTotal); alert(`Payment done ৳${mealTotal}`); mealTotal=0; planContainer.innerHTML=''; updateTotal(); }
+function goHome(){ window.location.href='home.html'; }
+function goLaundry(){ window.location.href='laundry.html'; }
+function logout(){ localStorage.removeItem('bachelor_current'); alert('Logged out'); window.location.href='Login.html'; }
+
+updateTotal();
+</script>
+</body>
+</html>

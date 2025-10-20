@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bachelor Care Service - Home</title>
+  <style>
+    *{box-sizing:border-box;font-family:Poppins,Arial,Helvetica,sans-serif}
+    body{margin:0;min-height:100vh;background:#000;color:#fff;display:flex;flex-direction:column}
+    header{background:#111;padding:18px 30px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 0 15px rgba(255,255,255,0.06)}
+    header h1{color:#ff6600;margin:0;font-size:26px}
+    header button{background:#ff6600;border:none;color:#fff;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:600;transition:0.3s}
+    header button:hover{background:#ff8533;transform:scale(1.05)}
+
+    main{width:90%;max-width:1100px;margin:30px auto;display:grid;grid-template-columns:1fr 1fr;gap:28px}
+    .card{background:#111;padding:20px;border-radius:12px;box-shadow:0 0 12px rgba(255,255,255,0.04)}
+    .card h2{color:#ff6600;margin-top:0}
+    .profile p{margin:10px 0;color:#ccc}
+    .profile span{color:#fff;font-weight:600}
+    .budget-input input{width:100%;padding:10px;border-radius:8px;border:none;background:#222;color:#fff;margin-bottom:8px}
+    .btn{background:#ff6600;color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;width:100%;font-weight:600;transition:0.3s}
+    .btn:hover{background:#ff8533;transform:scale(1.03)}
+    .total{margin-top:15px;color:#ff6600;font-weight:600;font-size:18px;text-align:center}
+
+    /* --- Big Navigation Buttons --- */
+    .nav-buttons{
+      display:flex;
+      justify-content:center;
+      gap:30px;
+      margin:40px 0;
+      flex-wrap:wrap;
+    }
+    .nav-buttons button{
+      background:linear-gradient(135deg, #ff6600, #ff3300);
+      border:none;
+      color:#fff;
+      padding:20px 50px;
+      border-radius:16px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:20px;
+      box-shadow:0 0 25px rgba(255,100,0,0.3);
+      letter-spacing:1px;
+      transition:all 0.3s ease;
+    }
+    .nav-buttons button:hover{
+      background:linear-gradient(135deg, #ff8533, #ff6600);
+      transform:scale(1.1);
+      box-shadow:0 0 40px rgba(255,120,0,0.6);
+    }
+
+    footer{margin-top:auto;background:#0a0a0a;padding:14px;text-align:center;color:#777;border-top:1px solid #222}
+    @media(max-width:800px){
+      main{grid-template-columns:1fr;padding:10px}
+      .nav-buttons{flex-direction:column;align-items:center;gap:20px}
+      .nav-buttons button{width:80%;font-size:18px;padding:18px 0}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Bachelor Care Service</h1>
+    <div>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="card profile">
+      <h2>👤 Profile</h2>
+      <p><strong>Name:</strong> <span id="profileName"></span></p>
+      <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+      <p><strong>Phone:</strong> <span id="profilePhone"></span></p>
+      <p><strong>Address:</strong> <span id="profileAddress"></span></p>
+    </div>
+
+    <div class="card">
+      <h2>💰 weekly Budget</h2>
+      <div class="budget-input">
+        <input id="budgetAmount" type="number" placeholder="Enter amount (BDT)">
+        <button class="btn" onclick="addBudget()">Add Expense</button>
+      </div>
+      <div class="total" id="budgetTotal">Total: ৳0</div>
+    </div>
+  </main>
+
+  <!-- 🔸 Beautiful Big Navigation Buttons -->
+  <div class="nav-buttons">
+    <button onclick="goHome()">🏠 Home</button>
+    <button onclick="goMealPlan()">🍽️ Meal Plan</button>
+    <button onclick="goLaundry()">🧺 Laundry</button>
+  </div>
+
+  <footer>© 2025 Bachelor Care Service</footer>
+
+  <script>
+    const current = localStorage.getItem('bachelor_current');
+    const users = JSON.parse(localStorage.getItem('bachelor_users') || '[]');
+    if (!current) { window.location.href = 'index.html'; }
+    const user = users.find(u => u.email === current);
+    if (!user) { localStorage.removeItem('bachelor_current'); window.location.href = 'index.html'; }
+
+    document.getElementById('profileName').textContent = user.name || '';
+    document.getElementById('profileEmail').textContent = user.email || '';
+    document.getElementById('profilePhone').textContent = user.phone || '';
+    document.getElementById('profileAddress').textContent = user.address || '';
+
+    const totalKey = 'bachelor_total_' + user.email;
+    let total = parseFloat(localStorage.getItem(totalKey)) || 0;
+    const totalEl = document.getElementById('budgetTotal');
+    totalEl.textContent = 'Total: ৳' + total.toFixed(2);
+
+    function addBudget(){
+      const amount = parseFloat(document.getElementById('budgetAmount').value);
+      if (isNaN(amount) || amount <= 0) { 
+        alert('Please enter a valid amount'); 
+        return; 
+      }
+      total += amount;
+      localStorage.setItem(totalKey, total);
+      totalEl.textContent = 'Total: ৳' + total.toFixed(2);
+      document.getElementById('budgetAmount').value = '';
+    }
+
+    function logout(){
+      localStorage.removeItem('bachelor_current');
+      alert('You have been logged out successfully!');
+      window.location.href = 'Login.html';
+    }
+
+    function goHome(){
+      window.location.href = 'home.html';
+    }
+    function goMealPlan(){
+      window.location.href = 'mealplan.html';
+    }
+    function goLaundry(){
+      window.location.href = 'laundry.html';
+    }
+  </script>
+</body>
+</html>
