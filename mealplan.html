@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Meal Plan - Bachelor Care Service</title>
+<script src="js/navigation.js"></script>
 <style>
 body{margin:0;background:#000;color:#fff;font-family:Poppins,Arial,sans-serif;display:flex;flex-direction:column;min-height:100vh;}
 header{background:#111;padding:15px 25px;display:flex;justify-content:space-between;align-items:center;}
@@ -177,9 +178,7 @@ function showRemoveOptions(dayIndex,mealIndex){
 // bottom buttons
 function resetTotal(){ if(confirm('Reset total?')){ mealTotal=0; planContainer.innerHTML=''; updateTotal(); } }
 function payNow(){ if(mealTotal<=0){ alert('No meals added'); return; } if(budgetTotal<mealTotal){ alert('Insufficient balance!'); return; } budgetTotal-=mealTotal; localStorage.setItem(budgetKey,budgetTotal); alert(`Payment done ৳${mealTotal}`); mealTotal=0; planContainer.innerHTML=''; updateTotal(); }
-function goHome(){ window.location.href='home.html'; }
-function goLaundry(){ window.location.href='laundry.html'; }
-function logout(){ localStorage.removeItem('bachelor_current'); alert('Logged out'); window.location.href='Login.html'; }
+// Navigation functions are now in navigation.js
 
 updateTotal();
 </script>
