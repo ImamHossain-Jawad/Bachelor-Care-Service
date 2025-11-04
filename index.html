@@ -166,8 +166,11 @@
     <footer>© 2025 Bachelor Care Service</footer>
 
     <script>
-        // Always redirect to home page
-        window.location.href = 'Home.html';
+        // Check if user is already logged in
+        const current = localStorage.getItem('bachelor_current');
+        if (current) {
+            window.location.href = 'Home.html';
+        }
     </script>
 </body>
 </html>
