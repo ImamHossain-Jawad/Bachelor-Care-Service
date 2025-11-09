@@ -137,7 +137,10 @@
 
       users.push({ name, phone, address, email, password });
       localStorage.setItem('bachelor_users', JSON.stringify(users));
-      localStorage.setItem('bachelor_current', email);
+      localStorage.setItem('bachelor_current', JSON.stringify({
+        email: email,
+        rememberMe: false
+      }));
       alert('Account created — redirecting to Home');
       window.location.href = 'Home.html';
     });
