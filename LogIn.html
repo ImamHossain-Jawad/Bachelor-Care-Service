@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Bachelor Care Service</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon-new.svg">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
   <script src="js/navigation.js"></script>
   <style>
     *{box-sizing:border-box;font-family:Poppins,Arial,Helvetica,sans-serif}
@@ -146,29 +148,26 @@
       const email = normalizeEmail(document.getElementById('loginEmail').value);
       const password = document.getElementById('loginPassword').value;
 
-      const users = JSON.parse(localStorage.getItem('bachelor_users') || '[]');
-      if (users.length === 0) {
-        alert('No account found. Please sign up first.');
-        loginForm.style.display='none'; signupForm.style.display='block';
+      // Simple validation for demo
+      if (!email || !password) {
+        alert('Please fill in all fields');
         return;
       }
 
-      const user = users.find(u => u.email === email);
-      if (!user) {
-        alert('No account found with that email. Please sign up.');
-        loginForm.style.display='none'; signupForm.style.display='block';
+      // Email validation
+      if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        alert('Please enter a valid email address');
         return;
       }
 
-      if (user.password !== password) {
-        alert('Wrong password. Try again.');
-        return;
-      }
+      // Store user session
+      localStorage.setItem('bachelor_current', JSON.stringify({
+        email: email,
+        rememberMe: document.getElementById('rememberMe').checked
+      }));
 
-      localStorage.setItem('bachelor_current', email);
-      if (document.getElementById('rememberMe').checked) {
-      }
-      window.location.href = 'home.html';
+      // Redirect to home
+      window.location.href = 'Home.html';
     });
   </script>
 </body>

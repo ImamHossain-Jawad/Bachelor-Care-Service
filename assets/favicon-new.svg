@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background circle with shadow -->
+    <defs>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.3"/>
+        </filter>
+    </defs>
+    
+    <!-- Orange circle background -->
+    <circle cx="16" cy="16" r="16" fill="#ff6600" filter="url(#shadow)"/>
+    
+    <!-- Home emoji -->
+    <text x="16" y="22" text-anchor="middle" dominant-baseline="middle" font-size="20" font-family="Segoe UI Emoji, Apple Color Emoji, NotoColorEmoji, Segoe UI Symbol, Android Emoji, EmojiSymbols">🏠</text>
+</svg>
