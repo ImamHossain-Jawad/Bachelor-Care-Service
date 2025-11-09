@@ -126,10 +126,10 @@
   <footer>© 2025 Bachelor Care Service</footer>
 
   <script>
-    const current = localStorage.getItem('bachelor_current');
+    const currentData = JSON.parse(localStorage.getItem('bachelor_current') || '{}');
     const users = JSON.parse(localStorage.getItem('bachelor_users') || '[]');
-    if (!current) { window.location.href = 'index.html'; }
-    const user = users.find(u => u.email === current);
+    if (!currentData.email) { window.location.href = 'index.html'; }
+    const user = users.find(u => u.email === currentData.email);
     if (!user) { localStorage.removeItem('bachelor_current'); window.location.href = 'index.html'; }
 
     document.getElementById('profileName').textContent = user.name || '';
@@ -157,11 +157,11 @@
     function logout(){
       localStorage.removeItem('bachelor_current');
       alert('You have been logged out successfully!');
-      window.location.href = 'Login.html';
+      window.location.href = 'LogIn.html';
     }
 
     function goHome(){
-      window.location.href = 'home.html';
+      window.location.href = 'Home.html';
     }
     function goMealPlan(){
       window.location.href = 'mealplan.html';

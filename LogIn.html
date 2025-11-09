@@ -139,7 +139,7 @@
       localStorage.setItem('bachelor_users', JSON.stringify(users));
       localStorage.setItem('bachelor_current', email);
       alert('Account created — redirecting to Home');
-      window.location.href = 'home.html';
+      window.location.href = 'Home.html';
     });
 
     
@@ -157,6 +157,15 @@
       // Email validation
       if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
         alert('Please enter a valid email address');
+        return;
+      }
+
+      // Check if user exists and password matches
+      const users = JSON.parse(localStorage.getItem('bachelor_users') || '[]');
+      const user = users.find(u => u.email === email && u.password === password);
+      
+      if (!user) {
+        alert('Invalid email or password');
         return;
       }
 
